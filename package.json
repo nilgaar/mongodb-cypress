@@ -2,8 +2,11 @@
   "name": "mongodb-cypress",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "prepublish": "npm run build",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,5 +22,11 @@
   "bugs": {
     "url": "https://github.com/nilgaar/mongodb-cypress/issues"
   },
-  "homepage": "https://github.com/nilgaar/mongodb-cypress#readme"
+  "homepage": "https://github.com/nilgaar/mongodb-cypress#readme",
+  "devDependencies": {
+    "typescript": "4.5.5"
+  },
+  "dependencies": {
+    "mongodb": "4.3.1"
+  }
 }
