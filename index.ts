@@ -41,7 +41,6 @@ const setdb = (dbConfig: dbConfig | string) => {
  */
 const tasks = {
   mongoQuery() {
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     myConnection.db();
   },
   mongoInsert() {},
