@@ -1,8 +1,7 @@
 import { MongoOptions } from "mongodb";
 
-type dbConfig = {
+export type dbConfig = {
   uri: string;
-  user: string;
-  pass: string;
+  db: string;
   options: MongoOptions;
 };

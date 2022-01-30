@@ -1,18 +1,50 @@
+import { dbConfig } from "models/config";
 import { MongoClient } from "mongodb";
 
 let myConnection: MongoClient;
+let config: dbConfig;
 
-const initMongoConn = async (dbConfig: any) => {
+/**
+ * Connect to mongodb.
+ * @param dbConfig cypress.json configuraion
+ *
+ */
+const initMongoConn = async (dbConfig: dbConfig): Promise<MongoClient> => {
   try {
-    const uri = dbConfig.uri;
-    myConnection = new MongoClient(uri);
-    await myConnection.connect();
+    myConnection = new MongoClient(dbConfig.uri, dbConfig.options);
+    return await myConnection.connect();
   } catch (e) {
     console.log(e);
+    throw e;
   }
 };
+
+/**
+ * Close mongodb connection.
+ *
+ */
 const closeMongoConn = () => {
   if (myConnection) myConnection.close();
 };
 
-module.exports = { initMongoConn, closeMongoConn };
+/**
+ * Set the connection's db
+ */
+const setdb = (dbConfig: dbConfig | string) => {
+  const mydb: string =
+    typeof dbConfig === "string" ? dbConfig : (dbConfig.db as string);
+  myConnection.db(mydb);
+};
+
+/**
+ *
+ */
+const tasks = {
+  mongoQuery() {
+    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    myConnection.db();
+  },
+  mongoInsert() {},
+};
+
+module.exports = { initMongoConn, closeMongoConn, setdb, tasks };
