@@ -11,6 +11,7 @@ import {
   InsertOneOptions,
   InsertOneResult,
   MongoClient,
+  MongoClientOptions,
   OptionalId,
   UpdateFilter,
   UpdateResult,
@@ -25,7 +26,10 @@ let db: Db;
  * @param dbConfig cypress.json configuraion
  *
  */
-const initMongoConn = async (dbConfig: dbConfig): Promise<MongoClient> => {
+const initMongoConn = async (dbConfig: {
+  uri: string;
+  options?: MongoClientOptions;
+}): Promise<MongoClient> => {
   try {
     myConnection = new MongoClient(dbConfig.uri, dbConfig.options);
     return await myConnection.connect();
