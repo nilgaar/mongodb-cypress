@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 /// <reference path="../index.d.ts" />
 
-import cypress from "cypress";
 import {
   BulkWriteOptions,
   DeleteResult,
@@ -95,9 +94,6 @@ function mongoUpdate(
 }
 
 module.exports = function () {
-  Cypress.Commands.add("patata", () => {
-    console.log("PATATA");
-  });
   Cypress.Commands.add(
     "mongoFind",
     (collection: string, filter?: Filter<Document>, options?: FindOptions) => {
