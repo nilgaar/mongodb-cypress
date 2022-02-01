@@ -3,6 +3,7 @@
 
 import {
   BulkWriteOptions,
+  Db,
   DeleteResult,
   Document,
   Filter,
@@ -15,13 +16,15 @@ import {
   UpdateResult,
   WithId,
 } from "mongodb";
-import { db } from "./setup";
 
-async function mongoFind(arg: {
-  collection: string;
-  filter?: Filter<Document>;
-  options?: FindOptions;
-}): Promise<WithId<Document>[]> {
+async function mongoFind(
+  db: Db,
+  arg: {
+    collection: string;
+    filter?: Filter<Document>;
+    options?: FindOptions;
+  }
+): Promise<WithId<Document>[]> {
   const myCollection = db.collection(arg.collection);
   if (arg.filter) {
     return await myCollection.find(arg.filter, arg.options).toArray();
@@ -29,6 +32,7 @@ async function mongoFind(arg: {
     return await myCollection.find().toArray();
   }
 }
+/*
 function mongoFindOne(arg: {
   collection: string;
   filter: Filter<Document>;
@@ -92,12 +96,17 @@ function mongoUpdate(
   const myCollection = db.collection(collection);
   return myCollection.updateOne(filter, update);
 }
-
+*/
 module.exports = function () {
   Cypress.Commands.add(
     "mongoFind",
     (collection: string, filter?: Filter<Document>, options?: FindOptions) => {
-      return mongoFind({ collection, filter, options });
+      cy.task("mongoConnection");
+      /*
+        const myDb = data as Db;
+        return mongoFind(myDb, { collection: "categories" });
+        */
     }
   );
+  //return mongoFind({ collection, filter, options });
 };
