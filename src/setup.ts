@@ -1,6 +1,5 @@
 import {
   Collection,
-  Db,
   Filter,
   FindOptions,
   MongoClient,
@@ -8,12 +7,10 @@ import {
   Document,
   InsertOneOptions,
   OptionalId,
-  WithId,
-  InsertOneResult,
   UpdateFilter,
 } from "mongodb";
 
-enum functions {
+export enum functions {
   "mongoFindOne",
   "mongoFindMany",
   "mongoInsertOne",
@@ -46,11 +43,14 @@ module.exports = (dbConfig: {
       db?: string;
     }): Promise<any> => {
       const mydb = arg.db ? arg.db : dbConfig.db;
-      let c: MongoClient;
       try {
-        c = await new MongoClient(dbConfig.uri, dbConfig.options).connect();
+        const c = await new MongoClient(
+          dbConfig.uri,
+          dbConfig.options
+        ).connect();
         const db: Collection<Document> = c.db(mydb).collection("categories");
         switch (arg.fun) {
+          //
           case functions.mongoFindMany:
             if (arg.findParameters && arg.findParameters.filter) {
               return await db
@@ -94,35 +94,33 @@ module.exports = (dbConfig: {
             break;
 
           case functions.mongoDeleteMany:
-            return db.deleteMany(arg.deleteParameters!.filter);
+            return await db.deleteMany(arg.deleteParameters!.filter);
             break;
 
           case functions.mongoDeleteOne:
-            return db.deleteOne(arg.deleteParameters!.filter);
+            return await db.deleteOne(arg.deleteParameters!.filter);
             break;
 
           case functions.mongoUpdateMany:
-            return db.updateMany(
+            return await db.updateMany(
               arg.updateParameters!.filter,
               arg.updateParameters!.update
             );
             break;
 
           case functions.mongoUpdateOne:
-            return db.updateOne(
+            return await db.updateOne(
               arg.updateParameters!.filter,
               arg.updateParameters!.update
             );
             break;
 
           default:
-            return null;
+            throw `function ${arg.fun} not supported`;
             break;
         }
       } catch (e) {
         throw e;
-      } finally {
-        c!.close();
       }
     },
   };

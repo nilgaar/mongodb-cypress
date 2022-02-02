@@ -3,21 +3,15 @@
 
 import {
   BulkWriteOptions,
-  Db,
-  DeleteResult,
   Document,
   Filter,
   FindOptions,
-  InsertManyResult,
   InsertOneOptions,
-  InsertOneResult,
   OptionalId,
   UpdateFilter,
-  UpdateResult,
-  WithId,
 } from "mongodb";
 
-enum functions {
+export enum functions {
   "mongoFindOne",
   "mongoFindMany",
   "mongoInsertOne",
