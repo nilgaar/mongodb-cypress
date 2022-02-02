@@ -10,12 +10,18 @@ import {
   OptionalId,
   WithId,
   InsertOneResult,
+  UpdateFilter,
 } from "mongodb";
 
 enum functions {
-  "mongoFind",
+  "mongoFindOne",
   "mongoFindMany",
-  "mongoInsert",
+  "mongoInsertOne",
+  "mongoInsertMany",
+  "mongoDeleteMany",
+  "mongoDeleteOne",
+  "mongoUpdateMany",
+  "mongoUpdateOne",
 }
 
 module.exports = (dbConfig: {
@@ -29,19 +35,23 @@ module.exports = (dbConfig: {
       collection: string;
       findParameters?: { filter?: Filter<Document>; findOps?: FindOptions };
       insertParameters?: {
-        item: OptionalId<Document>;
+        item: OptionalId<Document> | OptionalId<Document>[];
         options?: InsertOneOptions;
+      };
+      deleteParameters?: { filter: Filter<Document> };
+      updateParameters?: {
+        filter: Filter<Document>;
+        update: UpdateFilter<Document>;
       };
       db?: string;
     }): Promise<any> => {
       const mydb = arg.db ? arg.db : dbConfig.db;
-      let data;
       let c: MongoClient;
       try {
         c = await new MongoClient(dbConfig.uri, dbConfig.options).connect();
-        const db = c.db(mydb).collection("categories");
+        const db: Collection<Document> = c.db(mydb).collection("categories");
         switch (arg.fun) {
-          case functions.mongoFind:
+          case functions.mongoFindMany:
             if (arg.findParameters && arg.findParameters.filter) {
               return await db
                 .find(arg.findParameters.filter, arg.findParameters.findOps)
@@ -50,24 +60,59 @@ module.exports = (dbConfig: {
               return db.find().toArray();
             }
             break;
-          case functions.mongoFindMany:
+          case functions.mongoFindOne:
             if (arg.findParameters && arg.findParameters.filter) {
-              return db.findOne(
+              return await db.findOne(
                 arg.findParameters.filter,
                 arg.findParameters.findOps
               );
             }
             break;
 
-          case functions.mongoInsert:
+          case functions.mongoInsertOne:
             if (arg.insertParameters && arg.insertParameters.options) {
-              return db.insertOne(
+              return await db.insertOne(
                 arg.insertParameters.item,
                 arg.insertParameters.options
               );
             } else {
-              return db.insertOne(arg.insertParameters!.item);
+              return await db.insertOne(arg.insertParameters!.item);
             }
+            break;
+
+          case functions.mongoInsertMany:
+            if (arg.insertParameters && arg.insertParameters.options) {
+              return await db.insertMany(
+                arg.insertParameters.item as OptionalId<Document>[],
+                arg.insertParameters.options
+              );
+            } else {
+              return await db.insertMany(
+                arg!.insertParameters!.item as OptionalId<Document>[]
+              );
+            }
+            break;
+
+          case functions.mongoDeleteMany:
+            return db.deleteMany(arg.deleteParameters!.filter);
+            break;
+
+          case functions.mongoDeleteOne:
+            return db.deleteOne(arg.deleteParameters!.filter);
+            break;
+
+          case functions.mongoUpdateMany:
+            return db.updateMany(
+              arg.updateParameters!.filter,
+              arg.updateParameters!.update
+            );
+            break;
+
+          case functions.mongoUpdateOne:
+            return db.updateOne(
+              arg.updateParameters!.filter,
+              arg.updateParameters!.update
+            );
             break;
 
           default:
@@ -79,24 +124,6 @@ module.exports = (dbConfig: {
       } finally {
         c!.close();
       }
-
-      /*
-      new Promise((res, rej) => {
-        try {
-          const c = new MongoClient(dbConfig.uri, dbConfig.options);
-          return c
-            .connect()
-            .then((conn: MongoClient) => {
-              return conn.db(dbConfig.db);
-            })
-            .then((db: Db) => {
-              res(db);
-            });
-        } catch (e) {
-          console.log(e);
-          rej(e);
-        }
-      });*/
     },
   };
 };
