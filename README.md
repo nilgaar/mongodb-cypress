@@ -2,23 +2,21 @@
 
 ## Integrate package with Cypress
 
-Setup your `index.js` like:
+Setup your `plugins/index.js` like:
 
 ```JavaScript
 const mongoCypress = require("mongodb-cypress");
 
 module.exports = (on, config) => {
-  on("before:run", () => {
-    mongoCypress.initMongoConn(config.mongodb).then(() => {
-      //if you want to setup de db later, you can ignore the next line:
-      mongoCypress.setdb(config.mongodb.db);
-      //you can change the db anytime with mongoCypress.setdb('newdb')
-
-    });
-  });
-  on("after:run", mongoCypress.closeMongoConn);
-  on("task", mongoCypress.tasks);
+  on("task", mongoCypress.mongoSetup(config.env.mongodb));
 };
+```
+
+And add the following to `support/index.js`:
+
+```JavaScript
+const mongoCypress = require("mongodb-cypress");
+mongoCypress.mongoFunctions();
 ```
 
 ## Mongodb Connection Options and Usage
@@ -26,37 +24,59 @@ module.exports = (on, config) => {
 In order to custom to your mongo connection, add the [connection options](https://docs.mongodb.com/drivers/node/current/fundamentals/connection/#connection-options) to `cypress.json` under `mongodb.options` like:
 
 ```JSON
-"mongodb":{
-    "uri": "<your uri>",
-    "db" : "<initial db connecting to>",
-    "options" : {
-        "<config to mongodb conection>"
-    }
+"env": {
+  "mongodb":{
+      "uri": "<your uri>",
+      "db" : "<db connecting to>",
+      "options" : {
+          "<config to mongodb conection>"
+      }
+  }
 }
 ```
 
 ## Integrated Functionalities
 
 ```JavaScript
-cy.task('mongoFind', {'myCollection'})
-cy.task('mongoFind', {'myCollection', {name:"6147a7b6bea6e0ac35c8cfb3"}})
-cy.task('mongoFind', {'myCollection', {name:"6147a7b6bea6e0ac35c8cfb3"}, {limit:10}})
-
-cy.task('mongoFindOne', {'myCollection'}, {city:"Terrassa"})
-cy.task('mongoFindOne', {'myCollection'}, {city:"Terrassa"}, {limit:10})
-
-
-cy.task('mongoInsert', {'myCollection'}, {city:"Terrassa"})
-cy.task('mongoInsert', {'myCollection'}, {city:"Terrassa"}, {noResponse:false})
-
-cy.task('mongoInsertMany', {'myCollection'}, [{city:"Terrassa"}])
-cy.task('mongoInsertMany', {'myCollection'}, [{city:"Terrassa"}], {noResponse:false})
-
-cy.task('mongoDelete', {'myCollection'}, {city:"Terrassa"})
-
-cy.task('mongoDeleteMany', {'myCollection'}, {city:"Terrassa"})
-
-cy.task('mongoUpdateMany', {'myCollection'}, {city:"Terrassa"}, {city:"Terrassa", cp:08224 })
-
-cy.task('mongoUpdate', {'myCollection'}, {city:"Terrassa"}, {city:"Terrassa", cp:08224 })
+mongoFindMany(
+  collection: string,
+  filter?: Filter<Document>,
+  options?: FindOptions
+): Promise<WithId<Document>[]>;
+mongoFindOne(
+  collection: string,
+  filter?: Filter<Document>,
+  options?: FindOptions
+): Promise<Document | null>;
+mongoInsertOne(
+  collection: string,
+  item: OptionalId<Document>,
+  options?: InsertOneOptions
+): Promise<InsertOneResult<Document>>;
+mongoInsertMany(
+  collection: string,
+  item: OptionalId<Document>[],
+  options?: BulkWriteOptions
+): Promise<InsertManyResult<Document>>;
+mongoDeleteMany(
+  collection: string,
+  filter?: Filter<Document>
+): Promise<DeleteResult>;
+mongoDeleteOne(
+  collection: string,
+  filter?: Filter<Document>
+): Promise<DeleteResult>;
+mongoUpdateMany(
+  collection: string,
+  filter: Filter<Document>,
+  update: UpdateFilter<Document>
+): Promise<UpdateResult>;
+mongoUpdateOne(
+  collection: string,
+  filter: Filter<Document>,
+  update: UpdateFilter<Document>
+): Promise<UpdateResult>;
 ```
+
+All commands are integrated into the Cypress Chainable interface, so they can be called as:
+`cy.mongoFindMany("categories", { cat: "Llibres" })`
