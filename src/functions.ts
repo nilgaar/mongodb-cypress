@@ -17,20 +17,22 @@ import {
   WithId,
 } from "mongodb";
 
-async function mongoFind(
-  db: Db,
-  arg: {
-    collection: string;
-    filter?: Filter<Document>;
-    options?: FindOptions;
-  }
-): Promise<WithId<Document>[]> {
+function mongoFind(): any /*Promise<WithId<Document>[]>*/ {
+  /*arg: {
+  collection: string;
+  filter?: Filter<Document>;
+  options?: FindOptions;
+}
+*/
+  return "mongoFind";
+  /*
   const myCollection = db.collection(arg.collection);
   if (arg.filter) {
     return await myCollection.find(arg.filter, arg.options).toArray();
   } else {
     return await myCollection.find().toArray();
   }
+  */
 }
 /*
 function mongoFindOne(arg: {
@@ -101,7 +103,7 @@ module.exports = function () {
   Cypress.Commands.add(
     "mongoFind",
     (collection: string, filter?: Filter<Document>, options?: FindOptions) => {
-      cy.task("mongoConnection");
+      cy.task("mongoConnection").then(() => {});
       /*
         const myDb = data as Db;
         return mongoFind(myDb, { collection: "categories" });

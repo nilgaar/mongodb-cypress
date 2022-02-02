@@ -26,9 +26,12 @@ module.exports = (dbConfig: {
   options?: MongoClientOptions;
 }) => {
   return {
-    mongoConnection: () => {
-      console.log("test");
-      return "test";
+    mongoConnection: async () => {
+      let data;
+      const c = new MongoClient(dbConfig.uri, dbConfig.options).connect();
+      const db = (await c).db("arrimat").collection("categories");
+      data = await db.find({}).toArray();
+      return data;
       /*
       new Promise((res, rej) => {
         try {
