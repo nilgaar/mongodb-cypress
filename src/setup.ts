@@ -1,24 +1,22 @@
-import { Db, MongoClient, MongoClientOptions } from "mongodb";
+import {
+  Collection,
+  Db,
+  Filter,
+  FindOptions,
+  MongoClient,
+  MongoClientOptions,
+  Document,
+  InsertOneOptions,
+  OptionalId,
+  WithId,
+  InsertOneResult,
+} from "mongodb";
 
-/**
- * Connect to mongodb.
- * @param dbConfig cypress.json configuraion
- *
- */
-/*
-const initMongoConn = async (dbConfig: {
-  uri: string;
-  options?: MongoClientOptions;
-}): Promise<MongoClient> => {
-  try {
-    const myConnection = new MongoClient(dbConfig.uri, dbConfig.options);
-    return await myConnection.connect();
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
-};
-*/
+enum functions {
+  "mongoFind",
+  "mongoFindMany",
+  "mongoInsert",
+}
 
 module.exports = (dbConfig: {
   uri: string;
@@ -26,14 +24,56 @@ module.exports = (dbConfig: {
   options?: MongoClientOptions;
 }) => {
   return {
-    mongoConnection: async () => {
+    mongoConnection: async (arg: {
+      fun: functions;
+      collection: string;
+      findParameters?: { filter?: Filter<Document>; findOps?: FindOptions };
+      insertParameters?: {
+        item: OptionalId<Document>;
+        options?: InsertOneOptions;
+      };
+      db?: string;
+    }): Promise<any> => {
+      const mydb = arg.db ? arg.db : dbConfig.db;
       let data;
       let c: MongoClient;
       try {
         c = await new MongoClient(dbConfig.uri, dbConfig.options).connect();
-        const db = c.db("arrimat").collection("categories");
-        data = await db.find({}).toArray();
-        return data;
+        const db = c.db(mydb).collection("categories");
+        switch (arg.fun) {
+          case functions.mongoFind:
+            if (arg.findParameters && arg.findParameters.filter) {
+              return await db
+                .find(arg.findParameters.filter, arg.findParameters.findOps)
+                .toArray();
+            } else {
+              return db.find().toArray();
+            }
+            break;
+          case functions.mongoFindMany:
+            if (arg.findParameters && arg.findParameters.filter) {
+              return db.findOne(
+                arg.findParameters.filter,
+                arg.findParameters.findOps
+              );
+            }
+            break;
+
+          case functions.mongoInsert:
+            if (arg.insertParameters && arg.insertParameters.options) {
+              return db.insertOne(
+                arg.insertParameters.item,
+                arg.insertParameters.options
+              );
+            } else {
+              return db.insertOne(arg.insertParameters!.item);
+            }
+            break;
+
+          default:
+            return null;
+            break;
+        }
       } catch (e) {
         throw e;
       } finally {

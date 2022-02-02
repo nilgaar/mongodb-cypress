@@ -17,45 +17,7 @@ import {
   WithId,
 } from "mongodb";
 
-function mongoFind(): any /*Promise<WithId<Document>[]>*/ {
-  /*arg: {
-  collection: string;
-  filter?: Filter<Document>;
-  options?: FindOptions;
-}
-*/
-  return "mongoFind";
-  /*
-  const myCollection = db.collection(arg.collection);
-  if (arg.filter) {
-    return await myCollection.find(arg.filter, arg.options).toArray();
-  } else {
-    return await myCollection.find().toArray();
-  }
-  */
-}
 /*
-function mongoFindOne(arg: {
-  collection: string;
-  filter: Filter<Document>;
-  options?: FindOptions;
-}): Document {
-  const myCollection = db.collection(arg.collection);
-
-  return myCollection.findOne(arg.filter, arg.options);
-}
-function mongoInsert(
-  collection: string,
-  item: OptionalId<Document>,
-  options?: InsertOneOptions
-): Promise<InsertOneResult<Document>> {
-  const myCollection = db.collection(collection);
-  if (options) {
-    return myCollection.insertOne(item, options);
-  } else {
-    return myCollection.insertOne(item);
-  }
-}
 function mongoInsertMany(
   collection: string,
   items: OptionalId<Document>[],
@@ -99,16 +61,33 @@ function mongoUpdate(
   return myCollection.updateOne(filter, update);
 }
 */
+enum functions {
+  "mongoFind",
+  "mongoFindMany",
+  "mongoInsert",
+}
+
 module.exports = function () {
   Cypress.Commands.add(
     "mongoFind",
-    (collection: string, filter?: Filter<Document>, options?: FindOptions) => {
-      cy.task("mongoConnection").then(() => {});
-      /*
+    (
+      collection: string,
+      filter?: Filter<Document>,
+      options?: FindOptions
+    ): any => {
+      return cy.task("mongoConnection", {
+        fun: functions.mongoFind,
+        collection: "categories",
+        findParameters: { filter: { cat: "Roba" } },
+      });
+    }
+  );
+  Cypress.Commands.add("mongoFindOne", () => {
+    cy.task("mongoConnection", {}).then(() => {});
+    /*
         const myDb = data as Db;
         return mongoFind(myDb, { collection: "categories" });
         */
-    }
-  );
+  });
   //return mongoFind({ collection, filter, options });
 };

@@ -9,6 +9,6 @@ declare namespace Cypress {
       filter?: Filter<Document>,
       options?: FindOptions
     ): Promise<WithId<Document>[]>;
-    patata(): any;
+    mongoFindOne(): any;
   }
 }
