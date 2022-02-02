@@ -3,101 +3,128 @@
 
 import {
   BulkWriteOptions,
-  DeleteResult,
   Document,
   Filter,
   FindOptions,
-  InsertManyResult,
   InsertOneOptions,
-  InsertOneResult,
   OptionalId,
   UpdateFilter,
-  UpdateResult,
-  WithId,
 } from "mongodb";
-import { db } from "./setup";
 
-async function mongoFind(arg: {
-  collection: string;
-  filter?: Filter<Document>;
-  options?: FindOptions;
-}): Promise<WithId<Document>[]> {
-  const myCollection = db.collection(arg.collection);
-  if (arg.filter) {
-    return await myCollection.find(arg.filter, arg.options).toArray();
-  } else {
-    return await myCollection.find().toArray();
-  }
-}
-function mongoFindOne(arg: {
-  collection: string;
-  filter: Filter<Document>;
-  options?: FindOptions;
-}): Document {
-  const myCollection = db.collection(arg.collection);
-
-  return myCollection.findOne(arg.filter, arg.options);
-}
-function mongoInsert(
-  collection: string,
-  item: OptionalId<Document>,
-  options?: InsertOneOptions
-): Promise<InsertOneResult<Document>> {
-  const myCollection = db.collection(collection);
-  if (options) {
-    return myCollection.insertOne(item, options);
-  } else {
-    return myCollection.insertOne(item);
-  }
-}
-function mongoInsertMany(
-  collection: string,
-  items: OptionalId<Document>[],
-  options?: BulkWriteOptions
-): Promise<InsertManyResult<Document>> {
-  const myCollection = db.collection(collection);
-  if (options) {
-    return myCollection.insertMany(items, options);
-  } else {
-    return myCollection.insertMany(items);
-  }
-}
-function mongoDeleteMany(
-  collection: string,
-  filter: Filter<Document>
-): Promise<DeleteResult> {
-  const myCollection = db.collection(collection);
-  return myCollection.deleteMany(filter);
-}
-function mongoDelete(
-  collection: string,
-  filter: Filter<Document>
-): Promise<DeleteResult> {
-  const myCollection = db.collection(collection);
-  return myCollection.deleteOne(filter);
-}
-function mongoUpdateMany(
-  collection: string,
-  filter: Filter<Document>,
-  update: UpdateFilter<Document>
-): Promise<Document | UpdateResult> {
-  const myCollection = db.collection(collection);
-  return myCollection.updateMany(filter, update);
-}
-function mongoUpdate(
-  collection: string,
-  filter: Filter<Document>,
-  update: UpdateFilter<Document>
-): Promise<UpdateResult> {
-  const myCollection = db.collection(collection);
-  return myCollection.updateOne(filter, update);
+export enum functions {
+  "mongoFindOne",
+  "mongoFindMany",
+  "mongoInsertOne",
+  "mongoInsertMany",
+  "mongoDeleteMany",
+  "mongoDeleteOne",
+  "mongoUpdateMany",
+  "mongoUpdateOne",
 }
 
 module.exports = function () {
   Cypress.Commands.add(
-    "mongoFind",
-    (collection: string, filter?: Filter<Document>, options?: FindOptions) => {
-      return mongoFind({ collection, filter, options });
+    "mongoFindMany",
+    (
+      collection: string,
+      filter?: Filter<Document>,
+      options?: FindOptions
+    ): any => {
+      return cy.task("mongoConnection", {
+        fun: functions.mongoFindMany,
+        collection: collection,
+        findParameters: { filter: filter, options: options },
+      });
+    }
+  );
+  Cypress.Commands.add(
+    "mongoFindOne",
+    (
+      collection: string,
+      filter?: Filter<Document>,
+      options?: FindOptions
+    ): any => {
+      return cy.task("mongoConnection", {
+        fun: functions.mongoFindOne,
+        collection: collection,
+        findParameters: { filter: filter, options: options },
+      });
+    }
+  );
+  Cypress.Commands.add(
+    "mongoInsertOne",
+    (
+      collection: string,
+      item: OptionalId<Document>,
+      options?: InsertOneOptions
+    ): any => {
+      return cy.task("mongoConnection", {
+        fun: functions.mongoInsertOne,
+        collection: collection,
+        insertParameters: { item: item, options: options },
+      });
+    }
+  );
+  Cypress.Commands.add(
+    "mongoInsertMany",
+    (
+      collection: string,
+      item: OptionalId<Document>[],
+      options?: BulkWriteOptions
+    ): any => {
+      return cy.task("mongoConnection", {
+        fun: functions.mongoInsertMany,
+        collection: collection,
+        insertParameters: { item: item, options: options },
+      });
+    }
+  );
+  Cypress.Commands.add(
+    "mongoDeleteMany",
+    (collection: string, filter: Filter<Document>): any => {
+      return cy.task("mongoConnection", {
+        fun: functions.mongoDeleteMany,
+        collection: collection,
+        deleteParameters: { filter: filter },
+      });
+    }
+  );
+  Cypress.Commands.add(
+    "mongoDeleteOne",
+    (collection: string, filter: Filter<Document>): any => {
+      return cy.task("mongoConnection", {
+        fun: functions.mongoDeleteOne,
+        collection: collection,
+        deleteParameters: { filter: filter },
+      });
+    }
+  );
+  Cypress.Commands.add(
+    "mongoUpdateMany",
+    (
+      collection: string,
+      filter: Filter<Document>,
+      update: UpdateFilter<Document>
+    ): any => {
+      return cy.task("mongoConnection", {
+        fun: functions.mongoUpdateMany,
+        collection: collection,
+        updateParameters: { filter: filter, update: update },
+      });
+    }
+  );
+  Cypress.Commands.add(
+    "mongoUpdateOne",
+    (
+      collection: string,
+      filter: Filter<Document>,
+      update: UpdateFilter<Document>
+    ): any => {
+      return cy.task("mongoConnection", {
+        fun: functions.mongoUpdateOne,
+        collection: collection,
+        updateParameters: { filter: filter, update: update },
+      });
     }
   );
 };
