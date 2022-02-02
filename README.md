@@ -1,5 +1,7 @@
 # mongodb-cypress
 
+**A plugin for Cypress for interacting with Mongodb**
+
 ## Integrate package with Cypress
 
 Setup your `plugins/index.js` like:
