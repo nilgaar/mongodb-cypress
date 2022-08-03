@@ -4,6 +4,38 @@
 
 ## Integrate package with Cypress
 
+### Cypress 10 and later
+
+Setup your `cypress.config.js` like:
+
+```JavaScript
+const mongoCypress = require("mongodb-cypress");
+
+module.exports = defineConfig({
+  e2e: {
+    setupNodeEvents(on, config) {
+      on("task", mongoCypress.mongoSetup(config.env.mongodb));
+    },
+  },
+  env: {
+    mongodb: {
+      uri: "<connectio uri>",
+      db: "<db>",
+      options:{}
+    },
+  },
+});
+```
+
+Setup your `support/commands.js` like:
+
+```JavaScript
+const mongoCypress = require("mongodb-cypress");
+mongoCypress.mongoFunctions();
+```
+
+### Cypress before v10
+
 Setup your `plugins/index.js` like:
 
 ```JavaScript
@@ -14,25 +46,23 @@ module.exports = (on, config) => {
 };
 ```
 
-And add the following to `support/index.js`:
+And add the following to `support/commands.js`:
 
 ```JavaScript
 const mongoCypress = require("mongodb-cypress");
 mongoCypress.mongoFunctions();
 ```
 
-## Mongodb Connection Options and Usage
+#### Mongodb Connection Options and Usage
 
 In order to custom to your mongo connection, add the [connection options](https://docs.mongodb.com/drivers/node/current/fundamentals/connection/#connection-options) to `cypress.json` under `mongodb.options` like:
 
 ```JSON
 "env": {
   "mongodb":{
-      "uri": "<your uri>",
+      "uri": "<connection uri>",
       "db" : "<db connecting to>",
-      "options" : {
-          "<config to mongodb conection>"
-      }
+      "options" : {}
   }
 }
 ```
