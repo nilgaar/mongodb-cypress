@@ -48,7 +48,7 @@ module.exports = (dbConfig: {
           dbConfig.uri,
           dbConfig.options
         ).connect();
-        const db: Collection<Document> = c.db(mydb).collection("categories");
+        const db: Collection<Document> = c.db(mydb).collection(arg.collection);
         switch (arg.fun) {
           //
           case functions.mongoFindMany:
