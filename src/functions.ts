@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-/// <reference path="../index.d.ts" />
+/// <reference path="../types/index.d.ts" />
 
 import {
   BulkWriteOptions,
