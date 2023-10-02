@@ -8,6 +8,10 @@ export enum functions {
   mongoUpdateMany = "mongoUpdateMany",
   mongoUpdateOne = "mongoUpdateOne",
 }
+
+export { default as mongoSetup } from "./src/setup";
+export { default as mongoFunctions } from "./src/functions";
+
 export declare global {
   namespace Cypress {
     interface Chainable<Subject = any> {
