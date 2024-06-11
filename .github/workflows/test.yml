@@ -1,0 +1,14 @@
+name: test package CRUD
+
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  pullDB:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: MongoDB in GitHub Actions
+        uses: supercharge/mongodb-github-action@1.11.0
