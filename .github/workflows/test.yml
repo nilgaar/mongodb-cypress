@@ -17,7 +17,7 @@ jobs:
     needs: pullDB
     steps:
       - uses: actions/checkout@v3
-      - uses: sudosubin/git-clone-action
+      - uses: sudosubin/git-clone-action@v1
         with:
           repository: "nilgaar/mongodb-cypress-demo"
           platform: "github"
