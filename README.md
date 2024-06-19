@@ -1,3 +1,6 @@
+> [!CAUTION]
+> This package is now deprecated.
+
 # mongodb-cypress
 
 **A plugin for Cypress for interacting with Mongodb**

@@ -1,0 +1,34 @@
+name: test package CRUD
+
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  pullDB:
+    runs-on: ubuntu-latest
+    steps:
+      - name: MongoDB in GitHub Actions
+        uses: supercharge/mongodb-github-action@1.11.0
+
+  clonetest:
+    runs-on: ubuntu-latest
+    needs: pullDB
+    steps:
+      - uses: actions/checkout@v3
+      - uses: sudosubin/git-clone-action@v1.0.1
+        with:
+          repository: "nilgaar/mongodb-cypress-demo"
+          platform: "github"
+
+  runtest:
+    runs-on: ubuntu-latest
+    needs: clonetest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm start
