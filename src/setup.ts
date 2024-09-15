@@ -50,7 +50,6 @@ module.exports = (dbConfig: {
         ).connect();
         const db: Collection<Document> = c.db(mydb).collection(arg.collection);
         switch (arg.fun) {
-          //
           case functions.mongoFindMany:
             if (arg.findParameters && arg.findParameters.filter) {
               return await db
@@ -59,7 +58,6 @@ module.exports = (dbConfig: {
             } else {
               return db.find().toArray();
             }
-            break;
           case functions.mongoFindOne:
             if (arg.findParameters && arg.findParameters.filter) {
               return await db.findOne(
@@ -70,7 +68,7 @@ module.exports = (dbConfig: {
             break;
 
           case functions.mongoInsertOne:
-            if (arg.insertParameters && arg.insertParameters.options) {
+            if (arg.insertParameters?.options) {
               return await db.insertOne(
                 arg.insertParameters.item,
                 arg.insertParameters.options
@@ -78,46 +76,34 @@ module.exports = (dbConfig: {
             } else {
               return await db.insertOne(arg.insertParameters!.item);
             }
-            break;
-
           case functions.mongoInsertMany:
-            if (arg.insertParameters && arg.insertParameters.options) {
+            if (arg.insertParameters?.options) {
               return await db.insertMany(
                 arg.insertParameters.item as OptionalId<Document>[],
                 arg.insertParameters.options
               );
             } else {
               return await db.insertMany(
-                arg!.insertParameters!.item as OptionalId<Document>[]
+                arg.insertParameters!.item as OptionalId<Document>[]
               );
             }
-            break;
-
           case functions.mongoDeleteMany:
             return await db.deleteMany(arg.deleteParameters!.filter);
-            break;
-
           case functions.mongoDeleteOne:
             return await db.deleteOne(arg.deleteParameters!.filter);
-            break;
-
           case functions.mongoUpdateMany:
             return await db.updateMany(
               arg.updateParameters!.filter,
               arg.updateParameters!.update
             );
-            break;
 
           case functions.mongoUpdateOne:
             return await db.updateOne(
               arg.updateParameters!.filter,
               arg.updateParameters!.update
             );
-            break;
-
           default:
             throw `function ${arg.fun} not supported`;
-            break;
         }
       } catch (e) {
         throw e;
