@@ -42,7 +42,6 @@ describe("Testing MongoDB Plugin", () => {
         expect(result.acknowledged).to.be.true;
         expect(result.insertedId).to.exist;
 
-        // Verify the inserted document
         return cy.mongoFindOne(testCollection, { name: "David" });
       })
       .then((doc: Document | null) => {
@@ -56,7 +55,6 @@ describe("Testing MongoDB Plugin", () => {
       .then((result: UpdateResult) => {
         expect(result.modifiedCount).to.equal(2);
 
-        // Verify the update
         return cy.mongoFindMany(testCollection, { age: 26 });
       })
       .then((results: Document[]) => {
@@ -69,7 +67,6 @@ describe("Testing MongoDB Plugin", () => {
       .then((result: DeleteResult) => {
         expect(result.deletedCount).to.equal(1);
 
-        // Verify the deletion
         return cy.mongoFindOne(testCollection, { name: "David" });
       })
       .then((doc: Document | null) => {
@@ -82,7 +79,6 @@ describe("Testing MongoDB Plugin", () => {
       .then((result: DeleteResult) => {
         expect(result.deletedCount).to.equal(2);
 
-        // Verify that no documents with age 26 remain
         return cy.mongoFindMany(testCollection, { age: 26 });
       })
       .then((results: Document[]) => {
@@ -106,7 +102,6 @@ describe("Testing MongoDB Plugin", () => {
         expect(result.acknowledged).to.be.true;
         expect(result.insertedId).to.exist;
 
-        // Verify the inserted document
         return cy.mongoFindOne(testCollection, { name: "Eve" });
       })
       .then((doc: Document | null) => {
@@ -122,7 +117,6 @@ describe("Testing MongoDB Plugin", () => {
       .then((result: UpdateResult) => {
         expect(result.modifiedCount).to.equal(1);
 
-        // Verify the update
         return cy.mongoFindOne(testCollection, { name: "Eve" });
       })
       .then((doc: Document | null) => {
@@ -136,7 +130,6 @@ describe("Testing MongoDB Plugin", () => {
       .then((result: UpdateResult) => {
         expect(result.modifiedCount).to.equal(1);
 
-        // Verify the increment
         return cy.mongoFindOne(testCollection, { name: "Eve" });
       })
       .then((doc: Document | null) => {
@@ -158,7 +151,6 @@ describe("Testing MongoDB Plugin", () => {
       .then((result: DeleteResult) => {
         expect(result.deletedCount).to.be.greaterThan(0);
 
-        // Verify the collection is empty
         return cy.mongoFindMany(testCollection, {});
       })
       .then((docs: Document[]) => {
