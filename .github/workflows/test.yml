@@ -1,4 +1,4 @@
-name: test package CRUD
+name: Test Package CRUD
 
 on:
   push:
@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: MongoDB in GitHub Actions
         uses: supercharge/mongodb-github-action@1.11.0
+      - name: Create Test Database
+        run: |
+          mongo --eval 'use test'
 
   runtest:
     runs-on: ubuntu-latest
