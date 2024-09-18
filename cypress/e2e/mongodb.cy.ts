@@ -89,4 +89,80 @@ describe("Testing MongoDB Plugin", () => {
         expect(results).to.have.length(0);
       });
   });
+  it("should insert a document with nested objects and verify", () => {
+    const nestedDoc = {
+      name: "Eve",
+      age: 28,
+      address: {
+        street: "123 Main St",
+        city: "Anytown",
+        zip: "12345",
+      },
+      hobbies: ["reading", "gaming"],
+    };
+
+    cy.mongoInsertOne(testCollection, nestedDoc)
+      .then((result: InsertOneResult<Document>) => {
+        expect(result.acknowledged).to.be.true;
+        expect(result.insertedId).to.exist;
+
+        // Verify the inserted document
+        return cy.mongoFindOne(testCollection, { name: "Eve" });
+      })
+      .then((doc: Document | null) => {
+        expect(doc).to.not.be.null;
+        expect(doc).to.have.property("name", "Eve");
+        expect(doc).to.have.nested.property("address.city", "Anytown");
+        expect(doc).to.have.property("hobbies").that.includes("gaming");
+      });
+  });
+
+  it("should update a single document and verify update", () => {
+    cy.mongoUpdateOne(testCollection, { name: "Eve" }, { $set: { age: 29 } })
+      .then((result: UpdateResult) => {
+        expect(result.modifiedCount).to.equal(1);
+
+        // Verify the update
+        return cy.mongoFindOne(testCollection, { name: "Eve" });
+      })
+      .then((doc: Document | null) => {
+        expect(doc).to.not.be.null;
+        expect(doc).to.have.property("age", 29);
+      });
+  });
+
+  it("should increment a field using $inc operator", () => {
+    cy.mongoUpdateOne(testCollection, { name: "Eve" }, { $inc: { age: 1 } })
+      .then((result: UpdateResult) => {
+        expect(result.modifiedCount).to.equal(1);
+
+        // Verify the increment
+        return cy.mongoFindOne(testCollection, { name: "Eve" });
+      })
+      .then((doc: Document | null) => {
+        expect(doc).to.not.be.null;
+        expect(doc).to.have.property("age", 30);
+      });
+  });
+
+  it("should attempt to delete a non-existing document and verify deletion count is zero", () => {
+    cy.mongoDeleteOne(testCollection, { name: "NonExistingUser" }).then(
+      (result: DeleteResult) => {
+        expect(result.deletedCount).to.equal(0);
+      }
+    );
+  });
+
+  it("should delete all documents in the collection", () => {
+    cy.mongoDeleteMany(testCollection, {})
+      .then((result: DeleteResult) => {
+        expect(result.deletedCount).to.be.greaterThan(0);
+
+        // Verify the collection is empty
+        return cy.mongoFindMany(testCollection, {});
+      })
+      .then((docs: Document[]) => {
+        expect(docs).to.have.length(0);
+      });
+  });
 });
