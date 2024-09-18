@@ -10,9 +10,8 @@ jobs:
     steps:
       - name: MongoDB in GitHub Actions
         uses: supercharge/mongodb-github-action@1.11.0
-      - name: Create Test Database
-        run: |
-          mongo --eval 'use test'
+        with:
+          mongodb-db: test
 
   test:
     needs: pullDB
