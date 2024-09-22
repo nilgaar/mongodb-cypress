@@ -1,6 +1,3 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
-
 name: Node.js Package
 
 on:
@@ -8,7 +5,16 @@ on:
     types: [created]
 
 jobs:
-  build:
+  pullDB:
+    runs-on: ubuntu-latest
+    steps:
+      - name: MongoDB in GitHub Actions
+        uses: supercharge/mongodb-github-action@1.11.0
+        with:
+          mongodb-db: test
+
+  test:
+    needs: pullDB
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,7 +25,7 @@ jobs:
       - run: npm test
 
   publish-npm:
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
