@@ -5,35 +5,38 @@ on:
     types: [created]
 
 jobs:
-  pullDB:
+  test-and-db:
     runs-on: ubuntu-latest
     steps:
       - name: MongoDB in GitHub Actions
         uses: supercharge/mongodb-github-action@1.11.0
         with:
           mongodb-db: test
+          mongodb-port: 27017
 
-  test:
-    needs: pullDB
-    runs-on: ubuntu-latest
-    steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+
       - run: npm ci
+      - run: npm run build
       - run: npm test
 
   publish-npm:
-    needs: test
+    needs: test-and-db
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
+
       - run: npm ci
+
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
