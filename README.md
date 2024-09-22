@@ -1,5 +1,6 @@
 # mongodb-cypress
 
+[![Test Package CRUD](https://github.com/nilgaar/mongodb-cypress/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/nilgaar/mongodb-cypress/actions/workflows/test.yml)
 **A plugin for Cypress for interacting with Mongodb**
 
 ## Integrate package with Cypress
