@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    /* Basic Options */
     "target": "es5",
     "module": "commonjs",
     "declaration": true,
@@ -13,11 +12,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "src/**/*"  /* Include only your source files for compilation */
-  ],
-  "exclude": [
-    "./cypress",         /* Exclude the cypress folder */
-    "./cypress.config.ts" /* Exclude the Cypress config file */
-  ]
+  "include": ["src/**/*", "index.ts", "types/**/*"],
+  "exclude": ["./cypress", "./cypress.config.ts"]
 }
