@@ -13,6 +13,7 @@ jobs:
         uses: supercharge/mongodb-github-action@1.11.0
         with:
           mongodb-db: test
+          mongodb-port: 27017
 
   runtest:
     runs-on: ubuntu-latest
