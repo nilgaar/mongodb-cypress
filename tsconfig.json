@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2020",
     "module": "commonjs",
     "declaration": true,
     "outDir": "./dist",
     "strict": true,
-    "baseUrl": "./",
-    "typeRoots": ["./types/*"],
-    "types": ["cypress"],
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "types": ["cypress", "node"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true

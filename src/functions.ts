@@ -10,17 +10,7 @@ import {
   OptionalId,
   UpdateFilter,
 } from "mongodb";
-
-export enum functions {
-  "mongoFindOne",
-  "mongoFindMany",
-  "mongoInsertOne",
-  "mongoInsertMany",
-  "mongoDeleteMany",
-  "mongoDeleteOne",
-  "mongoUpdateMany",
-  "mongoUpdateOne",
-}
+import { functions } from "./enums";
 
 module.exports = function () {
   Cypress.Commands.add(
@@ -32,8 +22,8 @@ module.exports = function () {
     ): any => {
       return cy.task("mongoConnection", {
         fun: functions.mongoFindMany,
-        collection: collection,
-        findParameters: { filter: filter, options: options },
+        collection,
+        findParameters: { filter, options },
       });
     }
   );
@@ -46,8 +36,8 @@ module.exports = function () {
     ): any => {
       return cy.task("mongoConnection", {
         fun: functions.mongoFindOne,
-        collection: collection,
-        findParameters: { filter: filter, options: options },
+        collection,
+        findParameters: { filter, options },
       });
     }
   );
@@ -60,8 +50,8 @@ module.exports = function () {
     ): any => {
       return cy.task("mongoConnection", {
         fun: functions.mongoInsertOne,
-        collection: collection,
-        insertParameters: { item: item, options: options },
+        collection,
+        insertParameters: { item, options },
       });
     }
   );
@@ -74,8 +64,8 @@ module.exports = function () {
     ): any => {
       return cy.task("mongoConnection", {
         fun: functions.mongoInsertMany,
-        collection: collection,
-        insertParameters: { item: item, options: options },
+        collection,
+        insertParameters: { item, options },
       });
     }
   );
@@ -84,8 +74,8 @@ module.exports = function () {
     (collection: string, filter: Filter<Document>): any => {
       return cy.task("mongoConnection", {
         fun: functions.mongoDeleteMany,
-        collection: collection,
-        deleteParameters: { filter: filter },
+        collection,
+        deleteParameters: { filter },
       });
     }
   );
@@ -94,8 +84,8 @@ module.exports = function () {
     (collection: string, filter: Filter<Document>): any => {
       return cy.task("mongoConnection", {
         fun: functions.mongoDeleteOne,
-        collection: collection,
-        deleteParameters: { filter: filter },
+        collection,
+        deleteParameters: { filter },
       });
     }
   );
@@ -108,8 +98,8 @@ module.exports = function () {
     ): any => {
       return cy.task("mongoConnection", {
         fun: functions.mongoUpdateMany,
-        collection: collection,
-        updateParameters: { filter: filter, update: update },
+        collection,
+        updateParameters: { filter, update },
       });
     }
   );
@@ -122,8 +112,8 @@ module.exports = function () {
     ): any => {
       return cy.task("mongoConnection", {
         fun: functions.mongoUpdateOne,
-        collection: collection,
-        updateParameters: { filter: filter, update: update },
+        collection,
+        updateParameters: { filter, update },
       });
     }
   );
