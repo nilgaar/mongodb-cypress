@@ -1,3 +1,3 @@
 /// <reference types="cypress" />
-const mongoCypress = require("../../dist");
-mongoCypress.mongoFunctions();
+const mongoFunctions = require("../../dist/src/functions");
+mongoFunctions();

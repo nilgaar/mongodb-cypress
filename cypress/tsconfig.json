@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["cypress", "node"],
+    "typeRoots": ["../node_modules/@types", "../types"],
+    "ignoreDeprecations": "6.0"
+  },
+  "include": ["./**/*", "../types/**/*"]
+}

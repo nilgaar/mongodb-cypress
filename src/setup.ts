@@ -6,34 +6,30 @@ import {
   MongoClientOptions,
   Document,
   InsertOneOptions,
+  BulkWriteOptions,
   OptionalId,
   UpdateFilter,
 } from "mongodb";
+import { functions } from "./enums";
 
-export enum functions {
-  "mongoFindOne",
-  "mongoFindMany",
-  "mongoInsertOne",
-  "mongoInsertMany",
-  "mongoDeleteMany",
-  "mongoDeleteOne",
-  "mongoUpdateMany",
-  "mongoUpdateOne",
-}
+export { functions };
 
 module.exports = (dbConfig: {
   uri: string;
   db: string;
   options?: MongoClientOptions;
 }) => {
+  const client = new MongoClient(dbConfig.uri, dbConfig.options);
+  let connected = false;
+
   return {
     mongoConnection: async (arg: {
       fun: functions;
       collection: string;
-      findParameters?: { filter?: Filter<Document>; findOps?: FindOptions };
+      findParameters?: { filter?: Filter<Document>; options?: FindOptions };
       insertParameters?: {
         item: OptionalId<Document> | OptionalId<Document>[];
-        options?: InsertOneOptions;
+        options?: InsertOneOptions | BulkWriteOptions;
       };
       deleteParameters?: { filter: Filter<Document> };
       updateParameters?: {
@@ -42,13 +38,13 @@ module.exports = (dbConfig: {
       };
       db?: string;
     }): Promise<any> => {
-      const mydb = arg.db ? arg.db : dbConfig.db;
+      if (!connected) {
+        await client.connect();
+        connected = true;
+      }
+      const mydb = arg.db ?? dbConfig.db;
+      const db: Collection<Document> = client.db(mydb).collection(arg.collection);
       try {
-        const c = await new MongoClient(
-          dbConfig.uri,
-          dbConfig.options
-        ).connect();
-        const db: Collection<Document> = c.db(mydb).collection(arg.collection);
         return await handleDatabaseOperation(arg, db);
       } catch (e) {
         console.error(
@@ -67,108 +63,39 @@ async function handleDatabaseOperation(
 ): Promise<any> {
   switch (arg.fun) {
     case functions.mongoFindMany:
-      return await handleFindMany(arg, db);
+      return await db
+        .find(arg.findParameters?.filter ?? {}, arg.findParameters?.options)
+        .toArray();
     case functions.mongoFindOne:
-      return await handleFindOne(arg, db);
+      return await db.findOne(
+        arg.findParameters?.filter ?? {},
+        arg.findParameters?.options
+      );
     case functions.mongoInsertOne:
-      return await handleInsertOne(arg, db);
+      return await db.insertOne(
+        arg.insertParameters!.item,
+        arg.insertParameters?.options as InsertOneOptions
+      );
     case functions.mongoInsertMany:
-      return await handleInsertMany(arg, db);
+      return await db.insertMany(
+        arg.insertParameters!.item as OptionalId<Document>[],
+        arg.insertParameters?.options as BulkWriteOptions
+      );
     case functions.mongoDeleteMany:
-      return await handleDeleteMany(arg, db);
+      return await db.deleteMany(arg.deleteParameters!.filter);
     case functions.mongoDeleteOne:
-      return await handleDeleteOne(arg, db);
+      return await db.deleteOne(arg.deleteParameters!.filter);
     case functions.mongoUpdateMany:
-      return await handleUpdateMany(arg, db);
+      return await db.updateMany(
+        arg.updateParameters!.filter,
+        arg.updateParameters!.update
+      );
     case functions.mongoUpdateOne:
-      return await handleUpdateOne(arg, db);
+      return await db.updateOne(
+        arg.updateParameters!.filter,
+        arg.updateParameters!.update
+      );
     default:
       throw new Error(`function ${arg.fun} not supported`);
   }
-}
-
-async function handleFindMany(
-  arg: any,
-  db: Collection<Document>
-): Promise<any> {
-  if (arg.findParameters && arg.findParameters.filter) {
-    return await db
-      .find(arg.findParameters.filter, arg.findParameters.findOps)
-      .toArray();
-  } else {
-    return db.find().toArray();
-  }
-}
-
-async function handleFindOne(arg: any, db: Collection<Document>): Promise<any> {
-  if (arg.findParameters && arg.findParameters.filter) {
-    return await db.findOne(
-      arg.findParameters.filter,
-      arg.findParameters.findOps
-    );
-  }
-}
-
-async function handleInsertOne(
-  arg: any,
-  db: Collection<Document>
-): Promise<any> {
-  if (arg.insertParameters?.options) {
-    return await db.insertOne(
-      arg.insertParameters.item,
-      arg.insertParameters.options
-    );
-  } else {
-    return await db.insertOne(arg.insertParameters!.item);
-  }
-}
-
-async function handleInsertMany(
-  arg: any,
-  db: Collection<Document>
-): Promise<any> {
-  if (arg.insertParameters?.options) {
-    return await db.insertMany(
-      arg.insertParameters.item as OptionalId<Document>[],
-      arg.insertParameters.options
-    );
-  } else {
-    return await db.insertMany(
-      arg.insertParameters!.item as OptionalId<Document>[]
-    );
-  }
-}
-
-async function handleDeleteMany(
-  arg: any,
-  db: Collection<Document>
-): Promise<any> {
-  return await db.deleteMany(arg.deleteParameters!.filter);
-}
-
-async function handleDeleteOne(
-  arg: any,
-  db: Collection<Document>
-): Promise<any> {
-  return await db.deleteOne(arg.deleteParameters!.filter);
-}
-
-async function handleUpdateMany(
-  arg: any,
-  db: Collection<Document>
-): Promise<any> {
-  return await db.updateMany(
-    arg.updateParameters!.filter,
-    arg.updateParameters!.update
-  );
-}
-
-async function handleUpdateOne(
-  arg: any,
-  db: Collection<Document>
-): Promise<any> {
-  return await db.updateOne(
-    arg.updateParameters!.filter,
-    arg.updateParameters!.update
-  );
 }
